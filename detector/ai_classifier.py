@@ -1,6 +1,7 @@
 from google import genai
 import os
-
+from dotenv import load_dotenv
+load_dotenv(override=True)
 client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 def classify_website(page_text, findings):
@@ -32,7 +33,7 @@ Reason:
 """
 
     response = client.models.generate_content(
-        model="gemini-2.5-flash",
+        model="gemini-2.0-flash",
         contents=prompt
     )
 
