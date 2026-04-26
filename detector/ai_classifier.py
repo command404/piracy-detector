@@ -1,24 +1,34 @@
 from google import genai
+import os
 
-# Initialize client once
-client = genai.Client(api_key="")
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
-def classify(text):
+def classify_website(page_text, findings):
     prompt = f"""
-You are an AI that classifies websites into one of three categories:
+You are analyzing a website for piracy risk.
+
+Website text:
+{page_text[:3000]}
+
+Detected suspicious keywords:
+{findings['suspicious_keywords']}
+
+Detected suspicious media/download links:
+{findings['video_links'][:20]}
+
+Classify as:
 - Pirated
 - Suspicious
 - Safe
 
-Rules:
-- Pirated: illegal streaming, torrents, free premium content
-- Suspicious: unclear legality, misleading download/stream claims
-- Safe: legitimate websites
+Also provide:
+- Confidence (0-100)
+- Reason
 
-ONLY return one word: Pirated, Suspicious, or Safe.
-
-Website content:
-{text[:1500]}
+Format:
+Label:
+Confidence:
+Reason:
 """
 
     response = client.models.generate_content(
