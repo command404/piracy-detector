@@ -2,7 +2,7 @@ from google import genai
 import os
 from dotenv import load_dotenv
 load_dotenv(override=True)
-client = genai.Client(api_key=os.getenv("AIzaSyDwaHPgvCapNxaEcp_lHNgFSCp1mNgVxLo"))
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
 
 def classify_website(page_text, findings):
     prompt = f"""
