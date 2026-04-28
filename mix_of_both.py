@@ -51,7 +51,7 @@ def run(urls):
         })
 
         # Delay between websites
-        time.sleep(5)
+        time.sleep(1)
 
     return flagged_sites
 
