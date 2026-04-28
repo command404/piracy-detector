@@ -1,12 +1,23 @@
 from crawler.fetcher import fetch
 from crawler.parser import extract_text
 from crawler.deep_scanner import deep_scan
-from detector.ai_classifier import classify_website
 import time
-def run(urls):
-    results = []
 
-    for url in urls:
+
+def run(urls):
+    flagged_sites = []
+
+    # First 3 safe websites from top
+    safe_urls = urls[:3]
+
+    # Last 3 pirated websites from bottom
+    pirated_urls = urls[-3:]
+
+    # Combine them
+    mixed_urls = safe_urls + pirated_urls
+
+    for url in mixed_urls:
+
         html = fetch(url)
         if not html:
             continue
@@ -14,16 +25,37 @@ def run(urls):
         text = extract_text(html)
         findings = deep_scan(html, url)
 
-        ai_result = classify_website(text, findings)
-        time.sleep(12)
+        # Safe or Pirated verdict
+        if findings["suspicious_keywords"] or findings["video_links"]:
 
-        results.append({
+            piracy_reason = []
+
+            if findings["video_links"]:
+                piracy_reason.append("unauthorized streaming/download links")
+                
+            if findings["suspicious_keywords"]:
+                piracy_reason.append("piracy-related keywords")
+
+
+            verdict = "This website contains pirated content."
+            reason = f"Detected {' and '.join(piracy_reason)}."
+
+        else:
+            verdict = "This website appears safe."
+            reason = "No piracy indicators detected."
+
+        flagged_sites.append({
             "url": url,
-            "findings": findings,
-            "ai": ai_result
+            "verdict": verdict,
+            "reason": reason
         })
 
-    return results
+        # Delay between websites
+        time.sleep(1)
+
+    return flagged_sites
+
+
 if __name__ == "__main__":
     urls = []
 
@@ -40,7 +72,13 @@ if __name__ == "__main__":
             url = line.split(",")[0].strip()
             urls.append(url)
 
-    output = run(urls)
+    results = run(urls)
 
-    for result in output:
-        print(result)
+    print("\n--- WEBSITE ANALYSIS RESULTS ---\n")
+
+    for i, site in enumerate(results, start=1):
+        print(f"Website {i}:")
+        print(f"URL: {site['url']}")
+        print(f"VERDICT: {site['verdict']}")
+        print(f"REASON: {site['reason']}")
+        print("-" * 60)
